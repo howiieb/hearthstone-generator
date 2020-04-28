@@ -44,10 +44,15 @@ public class CardBuilder {
         return stats;
     }
 
+    // Parse a Card object in such a way that it can be read in the console
+    private static String parseToPrint(Card card){
+        return("Mana: " + card.getMana() + " Attack: " + card.getAttack() + " Health: " + card.getHealth());
+    }
+
     public static void main(String[] args){
         CardBuilder cb = new CardBuilder();
         Card card = cb.makeVanillaCard();
-        System.out.println("Mana: " + card.getMana() + " Attack: " + card.getAttack() + " Health: " + card.getHealth());
+        System.out.println(parseToPrint(card));
 
     }
 }
