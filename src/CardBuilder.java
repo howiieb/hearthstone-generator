@@ -1,4 +1,3 @@
-import java.util.Arrays;
 import java.util.Random;
 import java.util.HashMap;
 
@@ -13,25 +12,25 @@ public class CardBuilder {
         numParse.put(3,"three");
     }
 
-    private Card makeVanillaCard(){
+    // Generates a new blank card with a randomly assigned mana cost
+    private Card newCard(){
+        Random rng = new Random();
         Card newCard = new Card();
-        int cardMana = generateMana();
-        int[] cardStats = assignStats(cardMana);
-
-        newCard.setMana(cardMana);
-        newCard.setAttack(cardStats[0]);
-        newCard.setHealth(cardStats[1]);
-
+        newCard.setMana(rng.nextInt(10) + 1);
         return newCard;
     }
 
-    /* STATIC METHODS */
+    // Creates a card with just stats, no description
+    private Card makeVanillaCard(Card card){
+        int[] cardStats = assignStats(card.getMana());
 
-    // Returns a random mana cost, from 1 to 10
-    private static int generateMana(){
-        Random rng = new Random();
-        return rng.nextInt(10) + 1;
+        card.setAttack(cardStats[0]);
+        card.setHealth(cardStats[1]);
+
+        return card;
     }
+
+    /* STATIC METHODS */
 
     // Gets the vanilla stats budget, given a mana cost. Follows heuristic of mana cost * 2 + 1 for now
     private static int getVanilla(int mana){
@@ -63,12 +62,12 @@ public class CardBuilder {
     private Object[] writeCardDraw(int budget){
         Random rng = new Random();
         int cost = 99;
-        StringBuilder text = new StringBuilder();
+        StringBuilder text = new StringBuilder("");
         while(cost > budget - 1) { // Making sure we do this within the cost *and* leave at least one mana left
             int drawCards = 0;
             drawCards = rng.nextInt(2) + 1; // Drawing no more than three cards right now - keep some sanity
             cost = drawCards; // Update this line to adjust the cost of drawing a card
-            text = new StringBuilder("Draw " + numParse.get(drawCards) + " card");
+            text.append("Draw ").append(numParse.get(drawCards)).append(" card");
             if(drawCards > 1) { text.append("s."); }
             else { text.append("."); }
         }
@@ -76,7 +75,7 @@ public class CardBuilder {
     }
 
     /* KEYWORD MAKERS */
-    public static String writeBattlecry(int budget){
+    public static String makeBattlecryCard(int budget){
         return "hi";
     }
 
@@ -89,7 +88,6 @@ public class CardBuilder {
 
     public static void main(String[] args){
         CardBuilder cb = new CardBuilder();
-        System.out.println(Arrays.toString(cb.writeCardDraw(3)));
-
+        System.out.println(parseToPrint(cb.makeVanillaCard(cb.newCard())));
     }
 }
