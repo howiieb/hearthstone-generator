@@ -51,7 +51,7 @@ public class CardBuilder {
         return stats;
     }
 
-    private static MinionType assignType(){
+    private static MinionType selectType(){
         Random rng = new Random();
         int value = rng.nextInt(MinionType.values().length);
         switch(value){
@@ -90,8 +90,23 @@ public class CardBuilder {
                 text = "";
                 int drawCards;
                 drawCards = rng.nextInt(3) + 1; // Drawing no more than three cards right now - keep some sanity
+
+                // Pick a minion type to draw
+                MinionType drawType = selectType();
+
                 cost = drawCards; // Update this line to adjust the cost of drawing a card
-                text = text.concat("Draw ").concat(numParse.get(drawCards)).concat(" card");
+                text = text.concat("Draw ").concat(numParse.get(drawCards)).concat(" ");
+
+                // Append the right word to description based upon minion type
+                if(drawType == MinionType.normal){
+                    text = text.concat("card");
+                }
+                else{
+                    text = text.concat(drawType.toString());
+                    cost += 1; // Tutoring generally has more value
+                }
+
+                // Dealing with singular and plural cards
                 if (drawCards > 1) {
                     text = text.concat("s.");
                 } else {
@@ -121,7 +136,7 @@ public class CardBuilder {
             card.addToText("Battlecry: "); // Write the boilerplate
             card.addToText(cardText.getText()); // Add it to the text
         }
-        card.setType(assignType());
+        card.setType(selectType());
         card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
         int[] stats = assignStats(card.getBudget()); // Assign stats based on remaining budget
         card.setAttack(stats[0]); // Give those stats to the card itself
