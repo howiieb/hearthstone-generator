@@ -1,8 +1,9 @@
 public enum MinionType {
-    normal,
+    none,
     beast,
     murloc,
     dragon,
     mech,
-    elemental
+    elemental,
+    pirate,
 }

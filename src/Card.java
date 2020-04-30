@@ -12,7 +12,7 @@ public class Card {
         attack = 0;
         health = 0;
         text = "";
-        type = MinionType.normal;
+        type = MinionType.none;
 
     }
 

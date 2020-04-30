@@ -27,9 +27,7 @@ public class CardBuilder {
     /* STATIC METHODS */
 
     // Gets the vanilla stats budget, given a mana cost. Follows heuristic of mana cost * 2 + 1 for now
-    private static int getVanilla(int mana) {
-        return mana * 2 + 1;
-    }
+    private static int getVanilla(int mana) { return mana * 2 + 1; }
 
     /* Randomly assigns stats between attack and health, given a mana budget, conforming to the vanilla rules (*2+1).
     This is done by repeatedly rolling a 50/50 chance for either attack or health until mana is depleted.
@@ -60,7 +58,7 @@ public class CardBuilder {
         int value = rng.nextInt(MinionType.values().length);
         switch (value) {
             case 0:
-                return MinionType.normal;
+                return MinionType.none;
             case 1:
                 return MinionType.beast;
             case 2:
@@ -71,14 +69,16 @@ public class CardBuilder {
                 return MinionType.mech;
             case 5:
                 return MinionType.elemental;
+            case 6:
+                return MinionType.pirate;
         }
-        return MinionType.normal; // This should never be fired, but the IDE will cry
+        return MinionType.none; // This should never be fired, but the IDE will cry
     }
 
     // Parse a Card object in such a way that it can be read in the console
     private static String parseToPrint(Card card) {
-        return ("Mana: " + card.getMana() + " Attack: " + card.getAttack() + " Health: " + card.getHealth() + " Type: " +
-                card.getType().toString().substring(0, 1).toUpperCase() +
+        return ("Mana: " + card.getMana() + " Attack: " + card.getAttack() + " Health: " + card.getHealth() +
+                " Type: " + card.getType().toString().substring(0, 1).toUpperCase() +
                 card.getType().toString().substring(1).toLowerCase() + " Description: " + card.getText());
     }
 
@@ -102,7 +102,7 @@ public class CardBuilder {
                 text = text.concat("Draw ").concat(numParse.get(drawCards)).concat(" ");
 
                 // Append the right word to description based upon minion type
-                if (drawType == MinionType.normal) {
+                if (drawType == MinionType.none) {
                     text = text.concat("card");
                 } else {
                     text = text.concat(drawType.toString());
