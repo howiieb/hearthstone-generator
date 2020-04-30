@@ -7,12 +7,38 @@ import java.util.HashMap;
 public class CardBuilder {
 
     private HashMap<Integer, String> numParse;
+    private Conditional[] conditionals;
 
     private CardBuilder() {
         numParse = new HashMap<>();
         numParse.put(1, "a");
         numParse.put(2, "two");
         numParse.put(3, "three");
+
+        conditionals = new Conditional[]{new Conditional("",0,MinionType.none),
+                new Conditional("If you are holding a dragon, ",-2,MinionType.dragon),
+                new Conditional("If you played an elemental last turn, ",-3,MinionType.elemental),
+                new Conditional("If you have another mech, ",-1,MinionType.mech),
+                new Conditional("If you have another beast, ",-2,MinionType.mech),
+                new Conditional("If you have another pirate, ",-1,MinionType.pirate),
+                new Conditional("If you control no other minions, ",-2,MinionType.none),
+                new Conditional("If you control at least two other minions, ",-1,MinionType.none),
+                new Conditional("If you control at least four other minions, ",-2,MinionType.none),
+                new Conditional("If your opponent has at least three minions, ",-2,MinionType.none),
+                new Conditional("If you have ten mana crystals, ",-1,MinionType.none),
+                new Conditional("If you control a secret, ",-1,MinionType.none),
+                new Conditional("If you played a spell this turn, ",-1,MinionType.none), // MAGE
+                new Conditional("If you have a weapon equipped, ",-1,MinionType.none), // WARRIOR
+                new Conditional("If you're holding a card from another class, ",-1,MinionType.none), // ROGUE
+                new Conditional("If you control a Treant, ",-1,MinionType.none), // DRUID
+                new Conditional("If you discard this minion, ",-2,MinionType.none), // WARLOCK
+                new Conditional("If your deck has no neutral cards, ",-1,MinionType.none), // PALADIN
+                new Conditional("If you have overloaded mana crystals, ",-2,MinionType.none), // SHAMAN
+                new Conditional("If your hand is empty, ",-1,MinionType.none), // HUNTER
+                new Conditional("Outcast: ",-2,MinionType.none), // DEMON HUNTER
+                // CAN'T WORK OUT A PRIEST ONE! GOOD CLASS IDENTITY, BLIZZARD
+        };
+
     }
 
     // Generates a new blank card with a randomly assigned mana cost
@@ -73,6 +99,11 @@ public class CardBuilder {
                 return MinionType.pirate;
         }
         return MinionType.none; // This should never be fired, but the IDE will cry
+    }
+
+    private Conditional selectConditional(){
+        Random rng = new Random();
+        return conditionals[rng.nextInt(conditionals.length)];
     }
 
     // Parse a Card object in such a way that it can be read in the console
@@ -136,11 +167,13 @@ public class CardBuilder {
     private Card makeBattlecryCard() {
         Card card = newCard(); // Make a new card
         CardText cardText = this.writeCardDraw(card.getMana()); // Generate the card drawing text (using the card's cost)
-        if (!(cardText.getText().equals(""))) {
+        if (!(cardText.getText().equals(""))) { // If we actually rolled for an effect successfully:
             card.addToText("Battlecry: "); // Write the boilerplate
-            card.addToText(cardText.getText()); // Add it to the text
+            card.addToText(this.selectConditional().getText()); // Add a conditional effect
+            card.spendBudget(this.selectConditional().getCost()); // Give additional budget points for the effect
+            card.addToText(cardText.getText()); // Add the effect to the text
+            card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
         }
-        card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
         int[] stats = assignStats(card.getBudget()); // Assign stats based on remaining budget
         card.setAttack(stats[0]); // Give those stats to the card itself
         card.setHealth(stats[1]);
