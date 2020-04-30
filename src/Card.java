@@ -15,9 +15,8 @@ public class Card {
     }
 
     // Accessor methods
-    int getMana(){
-        return mana;
-    }
+    int getMana(){ return mana; }
+    int getBudget() { return budget; }
     int getAttack() { return attack; }
     int getHealth() { return health; }
     String getText() { return text; }
