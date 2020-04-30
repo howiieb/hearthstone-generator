@@ -3,6 +3,7 @@ public class Card {
     private Integer budget;
     private Integer attack;
     private Integer health;
+    private MinionType type;
     private String text;
 
     public Card(){
@@ -11,6 +12,7 @@ public class Card {
         attack = 0;
         health = 0;
         text = "";
+        type = MinionType.normal;
 
     }
 
@@ -19,7 +21,9 @@ public class Card {
     int getBudget() { return budget; }
     int getAttack() { return attack; }
     int getHealth() { return health; }
+    public MinionType getType() { return type; }
     String getText() { return text; }
+
 
     // Setter methods
     void setMana(int newMana){
@@ -30,6 +34,7 @@ public class Card {
 
     void setAttack(int newAttack){ attack = newAttack; }
     void setHealth(int newHealth){ health = newHealth; }
+    public void setType(MinionType type) { this.type = type; }
     void setText(String newText){ text = newText; }
     void addToText(String newText) { text += newText; }
 

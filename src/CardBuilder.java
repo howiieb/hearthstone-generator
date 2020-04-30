@@ -51,9 +51,31 @@ public class CardBuilder {
         return stats;
     }
 
+    private static MinionType assignType(){
+        Random rng = new Random();
+        int value = rng.nextInt(MinionType.values().length);
+        switch(value){
+            case 0:
+                return MinionType.normal;
+            case 1:
+                return MinionType.beast;
+            case 2:
+                return MinionType.murloc;
+            case 3:
+                return MinionType.dragon;
+            case 4:
+                return MinionType.mech;
+            case 5:
+                return MinionType.elemental;
+        }
+        return MinionType.normal; // This should never be fired, but the IDE will cry
+    }
+
     // Parse a Card object in such a way that it can be read in the console
     private static String parseToPrint(Card card){
-        return("Mana: " + card.getMana() + " Attack: " + card.getAttack() + " Health: " + card.getHealth() + " Description: " + card.getText());
+        return("Mana: " + card.getMana() + " Attack: " + card.getAttack() + " Health: " + card.getHealth() + " Type: " +
+                card.getType().toString().substring(0,1).toUpperCase() +
+                card.getType().toString().substring(1).toLowerCase() + " Description: " + card.getText());
     }
 
     /* Returns the data necessary to add "draw a card" to a card, given a budget to work with.
@@ -99,7 +121,7 @@ public class CardBuilder {
             card.addToText("Battlecry: "); // Write the boilerplate
             card.addToText(cardText.getText()); // Add it to the text
         }
-
+        card.setType(assignType());
         card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
         int[] stats = assignStats(card.getBudget()); // Assign stats based on remaining budget
         card.setAttack(stats[0]); // Give those stats to the card itself
