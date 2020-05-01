@@ -19,7 +19,7 @@ public class CardBuilder {
                 new Conditional("If you are holding a dragon, ",-2,MinionType.dragon),
                 new Conditional("If you played an elemental last turn, ",-3,MinionType.elemental),
                 new Conditional("If you have another mech, ",-1,MinionType.mech),
-                new Conditional("If you have another beast, ",-2,MinionType.mech),
+                new Conditional("If you have another beast, ",-2,MinionType.beast),
                 new Conditional("If you have another pirate, ",-1,MinionType.pirate),
                 new Conditional("If you control no other minions, ",-2,MinionType.none),
                 new Conditional("If you control at least two other minions, ",-1,MinionType.none),
@@ -183,15 +183,12 @@ public class CardBuilder {
             boolean validType = (conditional.getType() == card.getType() || conditional.getType() == MinionType.none);
             // Note to future self - do while is a waste of time
             if (!validType){ // If we generated a conditional incompatible with the type of the minion
-                while(conditional.getType() != card.getType() && conditional.getType() != MinionType.none){
-                    conditional = this.selectConditional(); // Generate a new conditional
-                    textToAdd = conditional.getText();
-                    costToAdd = conditional.getCost();
-                }
+                card.setType(saneType(conditional.getType())); // Change the type of the minion to be valid
             }
-            card.addToText(textToAdd); // Add a conditional effect
+            card.setConditional(conditional); // Add a conditional effect
+            card.addToText(textToAdd); // Add it to the text
             card.spendBudget(costToAdd); // Give additional budget points for the effect
-            CardText cardText = this.writeCardDraw(card.getBudget(),card.getType()); // Generate the card drawing text
+            CardText cardText = this.writeCardDraw(card.getBudget(),saneType(card.getType())); // Generate the card drawing text (50/50 chance of drawing the conditional type)
             card.addToText(cardText.getText()); // Add the effect to the text
             card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
         }
