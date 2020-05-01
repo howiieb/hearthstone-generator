@@ -1,6 +1,6 @@
 public class Card {
     private Integer mana;
-    private Integer budget;
+    private double budget;
     private Integer attack;
     private Integer health;
     private MinionType type;
@@ -19,7 +19,7 @@ public class Card {
 
     // Accessor methods
     int getMana(){ return mana; }
-    int getBudget() { return budget; }
+    double getBudget() { return budget; }
     int getAttack() { return attack; }
     int getHealth() { return health; }
     public MinionType getType() { return type; }
@@ -32,7 +32,7 @@ public class Card {
         mana = newMana;
         budget = mana;
     }
-    void spendBudget(int cost){ budget -= cost; }
+    void spendBudget(double cost){ budget -= cost; }
 
     void setAttack(int newAttack){ attack = newAttack; }
     void setHealth(int newHealth){ health = newHealth; }

@@ -51,16 +51,17 @@ public class CardBuilder {
     }
 
     // Gets the vanilla stats budget, given a mana cost. Follows heuristic of mana cost * 2 + 1 for now
-    private static int getVanilla(int mana) { return mana * 2 + 1; }
+    private static double getVanilla(double mana) { return mana * 2 + 1; }
 
     /* Randomly assigns stats between attack and health, given a mana budget, conforming to the vanilla rules (*2+1).
     This is done by repeatedly rolling a 50/50 chance for either attack or health until mana is depleted.
     Returns an array with two values. Value 0 is the attack, value 1 is the health.
     This is the last step in card generation, so we just spend all of the remaining budget and do not return cost. */
-    private static int[] assignStats(int budget) {
+    private static int[] assignStats(double budget) {
         Random rng = new Random();
         int[] stats = {0, 0};
-        int remainingStats = getVanilla(budget); // The remaining stats left to distribute to attack or health
+        double remainingStats = getVanilla(budget); // The remaining stats left to distribute to attack or health
+        if(budget % 1 != 0) { remainingStats += 1; } // If we have half a stat, give one more hp
         for (; remainingStats > 0; remainingStats--) {
             if (rng.nextBoolean()) { // Roll to determine stat - true gives to attack, false to health
                 stats[0] += 1;
@@ -126,9 +127,9 @@ public class CardBuilder {
     /* Returns the data necessary to add "draw a card" to a card, given a budget to work with.
     Assumes drawing one card costs one mana. This is on the low side, but Blizzard are hardly above power creep.
     Returns an array with two values. Value 0 is the description, as a string. Value 1 is the cost of this effect. */
-    private CardText writeCardDraw(int budget, MinionType type) {
+    private CardText writeCardDraw(double budget, MinionType type) {
         Random rng = new Random();
-        int cost = 0;
+        double cost = 0;
         String text = "";
         while (cost > budget - 1 || cost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
             text = "";
@@ -138,7 +139,7 @@ public class CardBuilder {
             // Pick a minion type to draw
             MinionType drawType = saneType(type);
 
-            cost = drawCards; // Update this line to adjust the cost of drawing a card
+            cost = drawCards * 1.5; // Update this line to adjust the cost of drawing a card
             text = text.concat("Draw ").concat(numParse.get(drawCards)).concat(" ");
 
             // Append the right word to description based upon minion type
