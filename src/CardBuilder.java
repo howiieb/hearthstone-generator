@@ -42,15 +42,13 @@ public class CardBuilder {
     }
 
     // Generates a new blank card with a randomly assigned mana cost
-    private static Card newCard() {
+    private Card newCard() {
         Random rng = new Random();
         Card newCard = new Card();
         newCard.setMana(rng.nextInt(10) + 1);
-        newCard.setType(selectType());
+        newCard.setType(randomType());
         return newCard;
     }
-
-    /* STATIC METHODS */
 
     // Gets the vanilla stats budget, given a mana cost. Follows heuristic of mana cost * 2 + 1 for now
     private static int getVanilla(int mana) { return mana * 2 + 1; }
@@ -79,7 +77,7 @@ public class CardBuilder {
     }
 
     // Choose a random minion type. Can be used for both new cards and descriptions. All types are equally weighted.
-    private static MinionType selectType() {
+    private static MinionType randomType() {
         Random rng = new Random();
         int value = rng.nextInt(MinionType.values().length);
         switch (value) {
@@ -100,6 +98,18 @@ public class CardBuilder {
         }
         return MinionType.none; // This should never be fired, but the IDE will cry
     }
+
+    // When given a type, picks randomly between it and the neutral type. Used to make card effects actually sensible.
+    private static MinionType saneType(MinionType givenType) {
+        Random rng = new Random();
+        if(rng.nextBoolean()){
+            return MinionType.none;
+        }
+        else{
+            return givenType;
+        }
+    }
+
 
     private Conditional selectConditional(){
         Random rng = new Random();
@@ -127,7 +137,7 @@ public class CardBuilder {
                 drawCards = rng.nextInt(3) + 1; // Drawing no more than three cards right now - keep some sanity
 
                 // Pick a minion type to draw
-                MinionType drawType = selectType();
+                MinionType drawType = randomType();
 
                 cost = drawCards; // Update this line to adjust the cost of drawing a card
                 text = text.concat("Draw ").concat(numParse.get(drawCards)).concat(" ");
@@ -155,7 +165,7 @@ public class CardBuilder {
 
     // Creates a card with just stats, no description
     private Card makeVanillaCard() {
-        Card card = newCard(); // Make a new card
+        Card card = this.newCard(); // Make a new card
         int[] cardStats = assignStats(card.getMana());
 
         card.setAttack(cardStats[0]);
@@ -165,7 +175,7 @@ public class CardBuilder {
     }
 
     private Card makeBattlecryCard() {
-        Card card = newCard(); // Make a new card
+        Card card = this.newCard(); // Make a new card
         CardText cardText = this.writeCardDraw(card.getMana()); // Generate the card drawing text (using the card's cost)
         if (!(cardText.getText().equals(""))) { // If we actually rolled for an effect successfully:
             card.addToText("Battlecry: "); // Write the boilerplate

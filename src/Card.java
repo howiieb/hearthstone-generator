@@ -4,6 +4,7 @@ public class Card {
     private Integer attack;
     private Integer health;
     private MinionType type;
+    private Conditional conditional;
     private String text;
 
     public Card(){
@@ -23,6 +24,7 @@ public class Card {
     int getHealth() { return health; }
     public MinionType getType() { return type; }
     String getText() { return text; }
+    Conditional getConditional() { return conditional; }
 
 
     // Setter methods
@@ -37,5 +39,6 @@ public class Card {
     public void setType(MinionType type) { this.type = type; }
     void setText(String newText){ text = newText; }
     void addToText(String newText) { text += newText; }
+    void setConditional(Conditional cond) {conditional = cond; }
 
 }
