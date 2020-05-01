@@ -205,16 +205,18 @@ public class CardBuilder {
         boolean accepted = false;
         System.out.println("Card generator. Enter a value to generate a card\n 1 - Vanilla\n 2 - Battlecry\n");
         while (!accepted) {
-            String userInput = reader.readLine();
-            switch (userInput) {
+            String cardType = reader.readLine();
+            System.out.println("How many?");
+            String cardCount = reader.readLine();
+            switch (cardType) {
                 case "1":
-                    for (int i = 0; i < 11; i++) {
+                    for (int i = 0; i < Integer.parseInt(cardCount); i++) {
                         System.out.println(parseToPrint(cb.makeVanillaCard()));
                     }
                     accepted = true;
                     break;
                 case "2":
-                    for (int i = 0; i < 11; i++) {
+                    for (int i = 0; i < Integer.parseInt(cardCount); i++) {
                         System.out.println(parseToPrint(cb.makeBattlecryCard()));
                     }
                     accepted = true;
