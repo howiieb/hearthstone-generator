@@ -6,23 +6,10 @@ import java.util.HashMap;
 
 public class CardBuilder {
 
-    private HashMap<Integer, String> numParse;
     private Conditional[] conditionals;
     private Random rng;
 
     private CardBuilder() {
-        numParse = new HashMap<>();
-        numParse.put(1, "one");
-        numParse.put(2, "two");
-        numParse.put(3, "three");
-        numParse.put(4, "four");
-        numParse.put(5, "five");
-        numParse.put(6, "six");
-        numParse.put(7, "seven");
-        numParse.put(8, "eight");
-        numParse.put(9, "nine");
-
-
         rng = new Random();
         conditionals = new Conditional[]{new Conditional("",0,MinionType.none),
                 new Conditional("If you are holding a dragon, ",-2,MinionType.dragon),
@@ -125,8 +112,8 @@ public class CardBuilder {
             MinionType drawType = this.saneType(type);
 
             effectCost = drawCards * 1.5; // Update this line to adjust the cost of drawing a card
-            String numText = numParse.get(drawCards);
-            if (numText.equals("one")){ // Convert "one" to "a"
+            String numText = Integer.toString(drawCards);
+            if (numText.equals("1")){ // Convert "one" to "a"
                 numText = "a";
             }
             effectText = effectText.concat("draw ").concat(numText).concat(" ");
@@ -155,7 +142,7 @@ public class CardBuilder {
         while(effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
             effectText = "";
             int damage = rng.nextInt(8) + 1;
-            effectText = effectText.concat("deal ").concat(numParse.get(damage)).concat(" damage ");
+            effectText = effectText.concat("deal ").concat(Integer.toString(damage)).concat(" damage ");
             if (rng.nextBoolean()) { // Roll to decide if we attack random targets or a fixed target
                 switch (rng.nextInt(3)){ // 0 = enemy, 1 = enemy minion, 2 = enemy hero
                     case 0:
