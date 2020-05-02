@@ -8,13 +8,14 @@ public class CardBuilder {
 
     private HashMap<Integer, String> numParse;
     private Conditional[] conditionals;
+    private Random rng;
 
     private CardBuilder() {
         numParse = new HashMap<>();
         numParse.put(1, "a");
         numParse.put(2, "two");
         numParse.put(3, "three");
-
+        rng = new Random();
         conditionals = new Conditional[]{new Conditional("",0,MinionType.none),
                 new Conditional("If you are holding a dragon, ",-2,MinionType.dragon),
                 new Conditional("If you played an elemental last turn, ",-3,MinionType.elemental),
@@ -43,10 +44,9 @@ public class CardBuilder {
 
     // Generates a new blank card with a randomly assigned mana cost
     private Card newCard() {
-        Random rng = new Random();
         Card newCard = new Card();
         newCard.setMana(rng.nextInt(10) + 1);
-        newCard.setType(randomType());
+        newCard.setType(this.randomType());
         return newCard;
     }
 
@@ -57,8 +57,7 @@ public class CardBuilder {
     This is done by repeatedly rolling a 50/50 chance for either attack or health until mana is depleted.
     Returns an array with two values. Value 0 is the attack, value 1 is the health.
     This is the last step in card generation, so we just spend all of the remaining budget and do not return cost. */
-    private static int[] assignStats(double budget) {
-        Random rng = new Random();
+    private int[] assignStats(double budget) {
         int[] stats = {0, 0};
         double remainingStats = getVanilla(budget); // The remaining stats left to distribute to attack or health
         if(budget % 1 != 0) { remainingStats += 1; } // If we have half a stat, give one more hp
@@ -78,31 +77,12 @@ public class CardBuilder {
     }
 
     // Choose a random minion type. Can be used for both new cards and descriptions. All types are equally weighted.
-    private static MinionType randomType() {
-        Random rng = new Random();
-        int value = rng.nextInt(MinionType.values().length);
-        switch (value) {
-            case 0:
-                return MinionType.none;
-            case 1:
-                return MinionType.beast;
-            case 2:
-                return MinionType.murloc;
-            case 3:
-                return MinionType.dragon;
-            case 4:
-                return MinionType.mech;
-            case 5:
-                return MinionType.elemental;
-            case 6:
-                return MinionType.pirate;
-        }
-        return MinionType.none; // This should never be fired, but the IDE will cry
+    private MinionType randomType() {
+        return MinionType.values()[rng.nextInt(MinionType.values().length)];
     }
 
     // When given a type, picks randomly between it and the neutral type. Used to make card effects actually sensible.
-    private static MinionType saneType(MinionType givenType) {
-        Random rng = new Random();
+    private MinionType saneType(MinionType givenType) {
         if(rng.nextBoolean()){
             return MinionType.none;
         }
@@ -113,7 +93,6 @@ public class CardBuilder {
 
 
     private Conditional selectConditional(){
-        Random rng = new Random();
         return conditionals[rng.nextInt(conditionals.length)];
     }
 
@@ -128,7 +107,6 @@ public class CardBuilder {
     Assumes drawing one card costs one mana. This is on the low side, but Blizzard are hardly above power creep.
     Returns an array with two values. Value 0 is the description, as a string. Value 1 is the cost of this effect. */
     private CardText writeCardDraw(double budget, MinionType type) {
-        Random rng = new Random();
         double cost = 0;
         String text = "";
         while (cost > budget - 1 || cost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
@@ -137,7 +115,7 @@ public class CardBuilder {
             drawCards = rng.nextInt(2) + 1; // Drawing no more than two cards right now
 
             // Pick a minion type to draw
-            MinionType drawType = saneType(type);
+            MinionType drawType = this.saneType(type);
 
             cost = drawCards * 1.5; // Update this line to adjust the cost of drawing a card
             text = text.concat("Draw ").concat(numParse.get(drawCards)).concat(" ");
@@ -165,7 +143,7 @@ public class CardBuilder {
     // Creates a card with just stats, no description
     private Card makeVanillaCard() {
         Card card = this.newCard(); // Make a new card
-        int[] cardStats = assignStats(card.getMana());
+        int[] cardStats = this.assignStats(card.getMana());
 
         card.setAttack(cardStats[0]);
         card.setHealth(cardStats[1]);
@@ -178,21 +156,21 @@ public class CardBuilder {
         if (card.getMana() > 1) { // If the card costs more than one
             card.addToText("Battlecry: "); // Write the boilerplate
             Conditional conditional = this.selectConditional(); // Generate an initial conditional
-            String textToAdd = conditional.getText(); // Initial conditions
+            String condText = conditional.getText(); // Initial conditions
             int costToAdd = conditional.getCost(); // Initial conditions
             boolean validType = (conditional.getType() == card.getType() || conditional.getType() == MinionType.none);
-            // Note to future self - do while is a waste of time
             if (!validType){ // If we generated a conditional incompatible with the type of the minion
-                card.setType(saneType(conditional.getType())); // Change the type of the minion to be valid
+                card.setType(this.saneType(conditional.getType())); // Change the type of the minion to be valid
             }
             card.setConditional(conditional); // Add a conditional effect
-            card.addToText(textToAdd); // Add it to the text
+            card.addToText(condText); // Add it to the text
             card.spendBudget(costToAdd); // Give additional budget points for the effect
-            CardText cardText = this.writeCardDraw(card.getBudget(),saneType(card.getType())); // Generate the card drawing text (50/50 chance of drawing the conditional type)
+
+            CardText cardText = this.writeCardDraw(card.getBudget(),this.saneType(card.getType())); // Generate the card drawing text (50/50 chance of drawing the conditional type)
             card.addToText(cardText.getText()); // Add the effect to the text
             card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
         }
-        int[] stats = assignStats(card.getBudget()); // Assign stats based on remaining budget
+        int[] stats = this.assignStats(card.getBudget()); // Assign stats based on remaining budget
         card.setAttack(stats[0]); // Give those stats to the card itself
         card.setHealth(stats[1]);
         return card;
