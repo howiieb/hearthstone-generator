@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Random;
-import java.util.HashMap;
 
 public class CardBuilder {
 
@@ -136,14 +135,14 @@ public class CardBuilder {
         return new CardText(effectText, effectCost);
     }
 
-    private CardText writeDealDamage(double budget, MinionType type){
+    private CardText writeDealDamage(double budget, boolean alwaysRandom){
         double effectCost = 0;
         String effectText = "";
         while(effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
             effectText = "";
             int damage = rng.nextInt(8) + 1;
             effectText = effectText.concat("deal ").concat(Integer.toString(damage)).concat(" damage ");
-            if (rng.nextBoolean()) { // Roll to decide if we attack random targets or a fixed target
+            if (rng.nextBoolean() || alwaysRandom) { // Roll to decide if we attack random targets or a fixed target
                 switch (rng.nextInt(3)){ // 0 = enemy, 1 = enemy minion, 2 = enemy hero
                     case 0:
                         effectCost = damage;
@@ -171,6 +170,17 @@ public class CardBuilder {
             }
         }
         return new CardText(effectText,effectCost);
+    }
+
+    private CardText writeRandomEffect(double budget, MinionType type, boolean alwaysRandom){
+        switch(rng.nextInt(2)){
+            case 0:
+                return this.writeCardDraw(budget, type);
+            case 1:
+                return this.writeDealDamage(budget, alwaysRandom);
+            default:
+                return new CardText("",0);
+        }
     }
 
     /* CARD MAKERS */
@@ -201,7 +211,7 @@ public class CardBuilder {
             card.addToText(condText); // Add it to the text
             card.spendBudget(costToAdd); // Give additional budget points for the effect
 
-            CardText cardText = this.writeDealDamage(card.getBudget(),this.saneType(card.getType())); // Generate the card drawing text (50/50 chance of drawing the conditional type)
+            CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), false); // Generate the card drawing text (50/50 chance of drawing the conditional type)
             card.addToText(cardText.getText()); // Add the effect to the text
             card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
         }
