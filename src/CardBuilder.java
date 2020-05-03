@@ -23,15 +23,25 @@ public class CardBuilder {
                 new Conditional("If you have ten mana crystals, ",-1,MinionType.none),
                 new Conditional("If you control a secret, ",-1,MinionType.none),
                 new Conditional("If you played a spell this turn, ",-1,MinionType.none), // MAGE
+                new Conditional("If you played a secret this turn, ",-2,MinionType.none),
                 new Conditional("If you have a weapon equipped, ",-1,MinionType.none), // WARRIOR
+                new Conditional("If you have a damaged minion, ",-1,MinionType.none),
                 new Conditional("If you're holding a card from another class, ",-1,MinionType.none), // ROGUE
+                new Conditional("Combo, ",-2,MinionType.none),
                 new Conditional("If you control a Treant, ",-1,MinionType.none), // DRUID
+                new Conditional("If you have unspent mana, ",-1,MinionType.none),
                 new Conditional("If you discard this minion, ",-3,MinionType.none), // WARLOCK
-                new Conditional("If your deck has no neutral cards, ",-1,MinionType.none), // PALADIN
+                new Conditional("If you have a demon, ",-2,MinionType.demon),
+                new Conditional("If your deck has no neutral cards, ",-2,MinionType.none), // PALADIN
+                new Conditional("If you have a Silver Hand Recruit, ",-1,MinionType.none),
                 new Conditional("If you have overloaded mana crystals, ",-2,MinionType.none), // SHAMAN
-                new Conditional("If your hand is empty, ",-1,MinionType.none), // HUNTER
+                new Conditional("If you cast a spell last turn, ",-2,MinionType.none),
+                new Conditional("If your hand is empty, ",-2,MinionType.none), // HUNTER
+                new Conditional("If you have used your hero power, ",-1,MinionType.none),
                 new Conditional("Outcast: ",-2,MinionType.none), // DEMON HUNTER
-                // CAN'T WORK OUT A PRIEST ONE! GOOD CLASS IDENTITY, BLIZZARD
+                new Conditional("If you attacked this turn, ",-2,MinionType.none),
+                new Conditional("If you restored health this turn, ",-2,MinionType.none), // PRIEST
+                new Conditional("If you have cast a spell on a friendly minion this turn, ",-2,MinionType.none),
         };
 
     }
@@ -153,8 +163,8 @@ public class CardBuilder {
                         effectText = effectText.concat("to a random enemy minion.");
                         break;
                     case 2:
-                        effectCost = damage * 2;
-                        effectText = effectText.concat("to the enemy hero.");
+                        effectCost = damage;
+                        effectText = effectText.concat("randomly split among enemies.");
                         break;
                 }
             }

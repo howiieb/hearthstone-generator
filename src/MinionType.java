@@ -6,4 +6,5 @@ public enum MinionType {
     mech,
     elemental,
     pirate,
+    demon,
 }
