@@ -68,9 +68,7 @@ public class CardBuilder {
         for (; remainingStats > 0; remainingStats--) {
             if(rng.nextBoolean()) { // Roll to determine stat - true gives to attack, false to health
                 stats[0] += 1;
-            } else {
-                stats[1] += 1;
-            }
+            } else stats[1] += 1;
         }
 
         if(stats[1] == 0) { // We can't have less than 1 health, so steal a point back
@@ -87,12 +85,8 @@ public class CardBuilder {
 
     // When given a type, picks randomly between it and the neutral type. Used to make card effects actually sensible.
     private MinionType saneType(MinionType givenType) {
-        if(rng.nextBoolean()){
-            return MinionType.none;
-        }
-        else{
-            return givenType;
-        }
+        if(rng.nextBoolean()) return MinionType.none;
+        return givenType;
     }
 
     // Pick a random conditional
@@ -172,7 +166,7 @@ public class CardBuilder {
                     effectCost = damage * 2;
                     effectText = effectText.concat(".");
                 }
-                else{
+                else {
                     effectCost = damage * 1.5;
                     effectText = effectText.concat(" to an enemy minion.");
                 }
@@ -187,11 +181,11 @@ public class CardBuilder {
         while(effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
             int damage = rng.nextInt(8) + 1;
             effectText = "deal ".concat(Integer.toString(damage)).concat(" damage");
-            if(rng.nextBoolean()){
+            if(rng.nextBoolean()) {
                 effectCost = damage * 2;
                 effectText = effectText.concat(" to all minions.");
             }
-            else{
+            else {
                 effectCost = damage * 2 + 1;
                 effectText = effectText.concat(" to all enemy minions.");
             }
@@ -219,7 +213,6 @@ public class CardBuilder {
             } else {
                 effectCost = health;
                 effectText = effectText.concat(".");
-                break;
             }
         }
         return new CardText(effectText,effectCost);
@@ -238,6 +231,24 @@ public class CardBuilder {
             default:
                 return new CardText("",0);
         }
+    }
+
+    private CardText writeKeyword(){
+        if(rng.nextBoolean()){ // 50/50 chance of adding a new keyword
+            CardText[] keywords = {new CardText("Taunt. ",0.5),
+            new CardText("Divine Shield. ",1.5),
+            new CardText("Windfury. ",2),
+            new CardText("Rush. ",1),
+            new CardText("Poisonous. ",1.5),};
+            return keywords[rng.nextInt(keywords.length)];
+        }
+        else return new CardText("", 0);
+    }
+
+    private void addKeyword(Card card){
+        CardText toAdd = this.writeKeyword();
+        card.addToText(toAdd.getText());
+        card.spendBudget(toAdd.getCost());
     }
 
     // CARD MAKERS
@@ -269,9 +280,9 @@ public class CardBuilder {
     private Card makeBattlecryCard() {
         Card card = this.newCard(); // Make a new card
         if(card.getMana() > 1) { // If the card costs more than one
+            this.addKeyword(card);
             card.addToText("Battlecry: "); // Write the boilerplate
             addConditional(card);
-
             CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), false);
             card.addToText(cardText.getText()); // Add the effect to the text
             card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
@@ -286,6 +297,7 @@ public class CardBuilder {
         Card card = this.newCard(); // Make a new card
         if(card.getMana() > 1) { // If the card costs more than one
             card.spendBudget(-1); // Deathrattles generally seem to be weaker
+            this.addKeyword(card);
             card.addToText("Deathrattle: "); // Write the boilerplate
             addConditional(card);
             CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), true);
@@ -302,7 +314,8 @@ public class CardBuilder {
         Card card = this.newCard();
         if(card.getMana() > 1) { // If the card costs more than one
             card.spendBudget(1.5); // End of turn is fairly strong
-            card.addToText("At the end of your turn. "); // Write the boilerplate
+            this.addKeyword(card);
+            card.addToText("At the end of your turn, "); // Write the boilerplate
             addConditional(card);
             CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), true);
             card.addToText(cardText.getText()); // Add the effect to the text
