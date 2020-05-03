@@ -27,7 +27,7 @@ public class CardBuilder {
                 new Conditional("If you have a weapon equipped, ",-1,MinionType.none), // WARRIOR
                 new Conditional("If you have a damaged minion, ",-1,MinionType.none),
                 new Conditional("If you're holding a card from another class, ",-1,MinionType.none), // ROGUE
-                new Conditional("Combo, ",-2,MinionType.none),
+                new Conditional("Combo: ",-2,MinionType.none),
                 new Conditional("If you control a Treant, ",-1,MinionType.none), // DRUID
                 new Conditional("If you have unspent mana, ",-1,MinionType.none),
                 new Conditional("If you discard this minion, ",-3,MinionType.none), // WARLOCK
@@ -151,27 +151,27 @@ public class CardBuilder {
         while(effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
             effectText = "";
             int damage = rng.nextInt(8) + 1;
-            effectText = effectText.concat("deal ").concat(Integer.toString(damage)).concat(" damage ");
+            effectText = effectText.concat("deal ").concat(Integer.toString(damage)).concat(" damage");
             if (rng.nextBoolean() || alwaysRandom) { // Roll to decide if we attack random targets or a fixed target
                 switch (rng.nextInt(3)){ // 0 = enemy, 1 = enemy minion, 2 = enemy hero
                     case 0:
                         effectCost = damage;
-                        effectText = effectText.concat("to a random enemy.");
+                        effectText = effectText.concat(" to a random enemy.");
                         break;
                     case 1:
                         effectCost = damage;
-                        effectText = effectText.concat("to a random enemy minion.");
+                        effectText = effectText.concat(" to a random enemy minion.");
                         break;
                     case 2:
                         effectCost = damage;
-                        effectText = effectText.concat("randomly split among enemies.");
+                        effectText = effectText.concat(" randomly split among enemies.");
                         break;
                 }
             }
             else {
                 if(rng.nextBoolean()) { // If we allow for face damage
                     effectCost = damage * 2;
-                    effectText = effectText.concat("to an enemy.");
+                    effectText = effectText.concat(".");
                 }
                 else{
                     effectCost = damage * 1.5;
@@ -182,12 +182,40 @@ public class CardBuilder {
         return new CardText(effectText,effectCost);
     }
 
+    private CardText writeRestoreHealth(double budget, boolean alwaysRandom) {
+        double effectCost = 0;
+        String effectText = "";
+        while (effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
+            int health = rng.nextInt(8) + 1;
+            effectText = effectText.concat("restore ").concat(Integer.toString(health)).concat(" health");
+            if (rng.nextBoolean() || alwaysRandom) { // Roll to decide if this is targetable
+                switch (rng.nextInt(2)) { // 0 = your hero, 1 = all allies
+                    case 0:
+                        effectCost = health * 0.5;
+                        effectText = effectText.concat(" to your hero.");
+                        break;
+                    case 1:
+                        effectCost = health * 1.5;
+                        effectText = effectText.concat(" to all friendly characters.");
+                        break;
+                }
+            } else {
+                effectCost = health;
+                effectText = effectText.concat(".");
+                break;
+            }
+        }
+        return new CardText(effectText,effectCost);
+    }
+
     private CardText writeRandomEffect(double budget, MinionType type, boolean alwaysRandom){
-        switch(rng.nextInt(2)){
+        switch(rng.nextInt(3)){
             case 0:
                 return this.writeCardDraw(budget, type);
             case 1:
                 return this.writeDealDamage(budget, alwaysRandom);
+            case 2:
+                return this.writeRestoreHealth(budget, alwaysRandom);
             default:
                 return new CardText("",0);
         }
