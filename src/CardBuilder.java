@@ -50,6 +50,7 @@ public class CardBuilder {
     private Card newCard() {
         Card newCard = new Card();
         newCard.setMana(rng.nextInt(10) + 1);
+        if(newCard.getMana() == 1) newCard.spendBudget(-1); // Give an extra budget to 1-drops - power creep!
         newCard.setType(this.randomType());
         return newCard;
     }
@@ -218,8 +219,18 @@ public class CardBuilder {
         return new CardText(effectText,effectCost);
     }
 
+    private CardText writeDiscover(MinionType type){
+        if(type != MinionType.none) return new CardText("Discover a ".concat(type.toString()).concat("."), 0.5);
+        else return new CardText("Discover a spell.",1);
+
+    }
+
+
+    // Pick a random effect from the list
     private CardText writeRandomEffect(double budget, MinionType type, boolean alwaysRandom){
-        switch(rng.nextInt(4)){
+        int bound = 4;
+        if(!alwaysRandom) bound += 1; // Only do discover for battlecry cards
+        switch(rng.nextInt(bound)){
             case 0:
                 return this.writeCardDraw(budget, type);
             case 1:
@@ -228,27 +239,24 @@ public class CardBuilder {
                 return this.writeRestoreHealth(budget, alwaysRandom);
             case 3:
                 return this.writeDealAOE(budget);
+            case 4:
+                return this.writeDiscover(type);
             default:
                 return new CardText("",0);
         }
     }
 
-    private CardText writeKeyword(){
+    private void addKeyword(Card card){
         if(rng.nextBoolean()){ // 50/50 chance of adding a new keyword
             CardText[] keywords = {new CardText("Taunt. ",0.5),
-            new CardText("Divine Shield. ",1.5),
-            new CardText("Windfury. ",2),
-            new CardText("Rush. ",1),
-            new CardText("Poisonous. ",1.5),};
-            return keywords[rng.nextInt(keywords.length)];
+                    new CardText("Divine Shield. ",1.5),
+                    new CardText("Windfury. ",2),
+                    new CardText("Rush. ",1),
+                    new CardText("Poisonous. ",1.5),};
+            CardText toAdd = keywords[rng.nextInt(keywords.length)];
+            card.addToText(toAdd.getText());
+            card.spendBudget(toAdd.getCost());
         }
-        else return new CardText("", 0);
-    }
-
-    private void addKeyword(Card card){
-        CardText toAdd = this.writeKeyword();
-        card.addToText(toAdd.getText());
-        card.spendBudget(toAdd.getCost());
     }
 
     // CARD MAKERS
@@ -279,14 +287,12 @@ public class CardBuilder {
 
     private Card makeBattlecryCard() {
         Card card = this.newCard(); // Make a new card
-        if(card.getMana() > 1) { // If the card costs more than one
-            this.addKeyword(card);
-            card.addToText("Battlecry: "); // Write the boilerplate
-            addConditional(card);
-            CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), false);
-            card.addToText(cardText.getText()); // Add the effect to the text
-            card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
-        }
+        this.addKeyword(card);
+        card.addToText("Battlecry: "); // Write the boilerplate
+        addConditional(card);
+        CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), false);
+        card.addToText(cardText.getText()); // Add the effect to the text
+        card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
         int[] stats = this.assignStats(card.getBudget()); // Assign stats based on remaining budget
         card.setAttack(stats[0]); // Give those stats to the card itself
         card.setHealth(stats[1]);
@@ -295,15 +301,17 @@ public class CardBuilder {
 
     private Card makeDeathrattleCard() {
         Card card = this.newCard(); // Make a new card
-        if(card.getMana() > 1) { // If the card costs more than one
-            card.spendBudget(-1); // Deathrattles generally seem to be weaker
-            this.addKeyword(card);
-            card.addToText("Deathrattle: "); // Write the boilerplate
-            addConditional(card);
-            CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), true);
-            card.addToText(cardText.getText()); // Add the effect to the text
-            card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
-        }
+        card.spendBudget(-1); // Deathrattles generally seem to be weaker
+        this.addKeyword(card);
+        card.addToText("Deathrattle: "); // Write the boilerplate
+        return addEffectAlwaysRandom(card);
+    }
+
+    private Card addEffectAlwaysRandom(Card card) {
+        addConditional(card);
+        CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), true);
+        card.addToText(cardText.getText()); // Add the effect to the text
+        card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
         int[] stats = this.assignStats(card.getBudget()); // Assign stats based on remaining budget
         card.setAttack(stats[0]); // Give those stats to the card itself
         card.setHealth(stats[1]);
@@ -312,19 +320,10 @@ public class CardBuilder {
 
     private Card makeEndTurnCard() {
         Card card = this.newCard();
-        if(card.getMana() > 1) { // If the card costs more than one
-            card.spendBudget(1.5); // End of turn is fairly strong
-            this.addKeyword(card);
-            card.addToText("At the end of your turn, "); // Write the boilerplate
-            addConditional(card);
-            CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), true);
-            card.addToText(cardText.getText()); // Add the effect to the text
-            card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
-        }
-        int[] stats = this.assignStats(card.getBudget()); // Assign stats based on remaining budget
-        card.setAttack(stats[0]); // Give those stats to the card itself
-        card.setHealth(stats[1]);
-        return card;
+        card.spendBudget(1.5); // End of turn is fairly strong
+        this.addKeyword(card);
+        card.addToText("At the end of your turn, "); // Write the boilerplate
+        return addEffectAlwaysRandom(card);
     }
 
 
