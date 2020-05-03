@@ -174,7 +174,7 @@ public class CardBuilder {
                 }
                 else{
                     effectCost = damage * 1.5;
-                    effectText = effectText.concat("to an enemy minion.");
+                    effectText = effectText.concat(" to an enemy minion.");
                 }
             }
         }
@@ -298,13 +298,26 @@ public class CardBuilder {
         return card;
     }
 
+    private Card makeEndTurnCard() {
+        Card card = this.newCard();
+        if(card.getMana() > 1) { // If the card costs more than one
+            card.spendBudget(1.5); // End of turn is fairly strong
+            card.addToText("At the end of your turn. "); // Write the boilerplate
+            addConditional(card);
+            CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), true);
+            card.addToText(cardText.getText()); // Add the effect to the text
+            card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
+        }
+        return card;
+    }
+
 
     public static void main(String[] args) throws IOException {
         CardBuilder cb = new CardBuilder();
         BufferedReader reader =
                 new BufferedReader(new InputStreamReader(System.in));
         boolean accepted = false;
-        System.out.println("Enter a value to generate a card\n1 - Vanilla\n2 - Battlecry\n3 - Deathrattle");
+        System.out.println("Enter a value to generate a card\n1 - Vanilla\n2 - Battlecry\n3 - Deathrattle\n4 - End turn");
         while (!accepted) {
             String cardType = reader.readLine();
             System.out.println("How many?");
@@ -325,6 +338,12 @@ public class CardBuilder {
                 case "3":
                     for (int i = 0; i < Integer.parseInt(cardCount); i++) {
                         System.out.println(parseToPrint(cb.makeDeathrattleCard()));
+                    }
+                    accepted = true;
+                    break;
+                case "4":
+                    for (int i = 0; i < Integer.parseInt(cardCount); i++) {
+                        System.out.println(parseToPrint(cb.makeEndTurnCard()));
                     }
                     accepted = true;
                     break;
