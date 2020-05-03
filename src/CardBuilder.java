@@ -204,7 +204,7 @@ public class CardBuilder {
         String effectText = "";
         while (effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
             int health = rng.nextInt(8) + 1;
-            effectText = effectText.concat("restore ").concat(Integer.toString(health)).concat(" health");
+            effectText = "restore ".concat(Integer.toString(health)).concat(" health");
             if(rng.nextBoolean() || alwaysRandom) { // Roll to decide if this is targetable
                 switch (rng.nextInt(2)) { // 0 = your hero, 1 = all allies
                     case 0:
@@ -308,6 +308,9 @@ public class CardBuilder {
             card.addToText(cardText.getText()); // Add the effect to the text
             card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
         }
+        int[] stats = this.assignStats(card.getBudget()); // Assign stats based on remaining budget
+        card.setAttack(stats[0]); // Give those stats to the card itself
+        card.setHealth(stats[1]);
         return card;
     }
 
