@@ -220,9 +220,19 @@ public class CardBuilder {
     }
 
     private CardText writeDiscover(MinionType type){
-        if(type != MinionType.none) return new CardText("Discover a ".concat(type.toString()).concat("."), 0.5);
-        else return new CardText("Discover a spell.",1);
-
+        if(type != MinionType.none) return new CardText("discover a ".concat(type.toString()).concat("."), 0.5);
+        else {
+            switch(rng.nextInt(3)) {
+                case 0:
+                    return new CardText("discover a spell.", 1);
+                case 1:
+                    return new CardText("discover a battlecry minion.", 1);
+                case 2:
+                    return new CardText("discover a deathrattle minion.", 1);
+                default:
+                    throw new ArithmeticException();
+            }
+        }
     }
 
 
@@ -242,7 +252,7 @@ public class CardBuilder {
             case 4:
                 return this.writeDiscover(type);
             default:
-                return new CardText("",0);
+                throw new ArithmeticException();
         }
     }
 
