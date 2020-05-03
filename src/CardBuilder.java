@@ -200,16 +200,7 @@ public class CardBuilder {
         Card card = this.newCard(); // Make a new card
         if (card.getMana() > 1) { // If the card costs more than one
             card.addToText("Battlecry: "); // Write the boilerplate
-            Conditional conditional = this.selectConditional(); // Generate an initial conditional
-            String condText = conditional.getText(); // Initial conditions
-            int costToAdd = conditional.getCost(); // Initial conditions
-            boolean validType = (conditional.getType() == card.getType() || conditional.getType() == MinionType.none);
-            if (!validType){ // If we generated a conditional incompatible with the type of the minion
-                card.setType(this.saneType(conditional.getType())); // Change the type of the minion to be valid
-            }
-            card.setConditional(conditional); // Add a conditional effect
-            card.addToText(condText); // Add it to the text
-            card.spendBudget(costToAdd); // Give additional budget points for the effect
+            addConditional(card);
 
             CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), false); // Generate the card drawing text (50/50 chance of drawing the conditional type)
             card.addToText(cardText.getText()); // Add the effect to the text
@@ -221,12 +212,41 @@ public class CardBuilder {
         return card;
     }
 
+    private Card makeDeathrattleCard() {
+        Card card = this.newCard(); // Make a new card
+        if (card.getMana() > 1) { // If the card costs more than one
+            card.spendBudget(-1); // Deathrattles generally seem to be weaker
+            card.addToText("Deathrattle: "); // Write the boilerplate
+            addConditional(card);
+            CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), true); // Generate the card drawing text (50/50 chance of drawing the conditional type)
+            card.addToText(cardText.getText()); // Add the effect to the text
+            card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
+        }
+        int[] stats = this.assignStats(card.getBudget()); // Assign stats based on remaining budget
+        card.setAttack(stats[0]); // Give those stats to the card itself
+        card.setHealth(stats[1]);
+        return card;
+    }
+
+    private void addConditional(Card card) {
+        Conditional conditional = this.selectConditional(); // Generate an initial conditional
+        String condText = conditional.getText(); // Initial conditions
+        int costToAdd = conditional.getCost(); // Initial conditions
+        boolean validType = (conditional.getType() == card.getType() || conditional.getType() == MinionType.none);
+        if (!validType){ // If we generated a conditional incompatible with the type of the minion
+            card.setType(this.saneType(conditional.getType())); // Change the type of the minion to be valid
+        }
+        card.setConditional(conditional); // Add a conditional effect
+        card.addToText(condText); // Add it to the text
+        card.spendBudget(costToAdd); // Give additional budget points for the effect
+    }
+
     public static void main(String[] args) throws IOException {
         CardBuilder cb = new CardBuilder();
         BufferedReader reader =
                 new BufferedReader(new InputStreamReader(System.in));
         boolean accepted = false;
-        System.out.println("Card generator. Enter a value to generate a card\n 1 - Vanilla\n 2 - Battlecry\n");
+        System.out.println("Enter a value to generate a card\n1 - Vanilla\n2 - Battlecry\n3 - Deathrattle");
         while (!accepted) {
             String cardType = reader.readLine();
             System.out.println("How many?");
@@ -241,6 +261,12 @@ public class CardBuilder {
                 case "2":
                     for (int i = 0; i < Integer.parseInt(cardCount); i++) {
                         System.out.println(parseToPrint(cb.makeBattlecryCard()));
+                    }
+                    accepted = true;
+                    break;
+                case "3":
+                    for (int i = 0; i < Integer.parseInt(cardCount); i++) {
+                        System.out.println(parseToPrint(cb.makeDeathrattleCard()));
                     }
                     accepted = true;
                     break;
