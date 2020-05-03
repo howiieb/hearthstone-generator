@@ -66,14 +66,14 @@ public class CardBuilder {
         double remainingStats = getVanilla(budget); // The remaining stats left to distribute to attack or health
         if(budget % 1 != 0) { remainingStats += 1; } // If we have half a stat, give one more stat
         for (; remainingStats > 0; remainingStats--) {
-            if (rng.nextBoolean()) { // Roll to determine stat - true gives to attack, false to health
+            if(rng.nextBoolean()) { // Roll to determine stat - true gives to attack, false to health
                 stats[0] += 1;
             } else {
                 stats[1] += 1;
             }
         }
 
-        if (stats[1] == 0) { // We can't have less than 1 health, so steal a point back
+        if(stats[1] == 0) { // We can't have less than 1 health, so steal a point back
             stats[0] -= 1;
             stats[1] += 1;
         }
@@ -107,6 +107,8 @@ public class CardBuilder {
                 card.getType().toString().substring(1).toLowerCase() + " Description: " + card.getText());
     }
 
+    // EFFECT WRITERS
+
     /* Returns the data necessary to add "draw a card" to a card, given a budget to work with and the type of the minion.
     Current cost of drawing one card is 1.5 mana.
     Returns an object with two values - the description, as a string, and the cost of this effect. */
@@ -114,7 +116,6 @@ public class CardBuilder {
         double effectCost = 0;
         String effectText = "";
         while (effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
-            effectText = "";
             int drawCards = rng.nextInt(2) + 1; // Drawing no more than two cards right now
 
             // Pick a minion type to draw (50/50 split between neutral and the minion type specifically)
@@ -122,13 +123,13 @@ public class CardBuilder {
 
             effectCost = drawCards * 1.5; // Update this line to adjust the cost of drawing a card
             String numText = Integer.toString(drawCards);
-            if (numText.equals("1")){ // Convert "one" to "a"
+            if(numText.equals("1")){ // Convert "one" to "a"
                 numText = "a";
             }
-            effectText = effectText.concat("draw ").concat(numText).concat(" ");
+            effectText = "draw ".concat(numText).concat(" ");
 
             // Append the right word to description based upon minion type
-            if (drawType == MinionType.none) {
+            if(drawType == MinionType.none) {
                 effectText = effectText.concat("card");
             } else {
                 effectText = effectText.concat(drawType.toString());
@@ -136,7 +137,7 @@ public class CardBuilder {
             }
 
             // Dealing with singular and plural cards
-            if (drawCards > 1) {
+            if(drawCards > 1) {
                 effectText = effectText.concat("s.");
             } else {
                 effectText = effectText.concat(".");
@@ -149,10 +150,9 @@ public class CardBuilder {
         double effectCost = 0;
         String effectText = "";
         while(effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
-            effectText = "";
             int damage = rng.nextInt(8) + 1;
-            effectText = effectText.concat("deal ").concat(Integer.toString(damage)).concat(" damage");
-            if (rng.nextBoolean() || alwaysRandom) { // Roll to decide if we attack random targets or a fixed target
+            effectText = "deal ".concat(Integer.toString(damage)).concat(" damage");
+            if(rng.nextBoolean() || alwaysRandom) { // Roll to decide if we attack random targets or a fixed target
                 switch (rng.nextInt(3)){ // 0 = enemy, 1 = enemy minion, 2 = enemy hero
                     case 0:
                         effectCost = damage;
@@ -167,8 +167,7 @@ public class CardBuilder {
                         effectText = effectText.concat(" randomly split among enemies.");
                         break;
                 }
-            }
-            else {
+            } else {
                 if(rng.nextBoolean()) { // If we allow for face damage
                     effectCost = damage * 2;
                     effectText = effectText.concat(".");
@@ -182,13 +181,31 @@ public class CardBuilder {
         return new CardText(effectText,effectCost);
     }
 
+    private CardText writeDealAOE(double budget){
+        double effectCost = 0;
+        String effectText = "";
+        while(effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
+            int damage = rng.nextInt(8) + 1;
+            effectText = "deal ".concat(Integer.toString(damage)).concat(" damage");
+            if(rng.nextBoolean()){
+                effectCost = damage * 2;
+                effectText = effectText.concat(" to all minions.");
+            }
+            else{
+                effectCost = damage * 2 + 1;
+                effectText = effectText.concat(" to all enemy minions.");
+            }
+        }
+        return new CardText(effectText,effectCost);
+    }
+
     private CardText writeRestoreHealth(double budget, boolean alwaysRandom) {
         double effectCost = 0;
         String effectText = "";
         while (effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
             int health = rng.nextInt(8) + 1;
             effectText = effectText.concat("restore ").concat(Integer.toString(health)).concat(" health");
-            if (rng.nextBoolean() || alwaysRandom) { // Roll to decide if this is targetable
+            if(rng.nextBoolean() || alwaysRandom) { // Roll to decide if this is targetable
                 switch (rng.nextInt(2)) { // 0 = your hero, 1 = all allies
                     case 0:
                         effectCost = health * 0.5;
@@ -209,21 +226,22 @@ public class CardBuilder {
     }
 
     private CardText writeRandomEffect(double budget, MinionType type, boolean alwaysRandom){
-        switch(rng.nextInt(3)){
+        switch(rng.nextInt(4)){
             case 0:
                 return this.writeCardDraw(budget, type);
             case 1:
                 return this.writeDealDamage(budget, alwaysRandom);
             case 2:
                 return this.writeRestoreHealth(budget, alwaysRandom);
+            case 3:
+                return this.writeDealAOE(budget);
             default:
                 return new CardText("",0);
         }
     }
 
-    /* CARD MAKERS */
+    // CARD MAKERS
 
-    // Creates a card with just stats, no description
     private Card makeVanillaCard() {
         Card card = this.newCard(); // Make a new card
         int[] cardStats = this.assignStats(card.getMana());
@@ -234,13 +252,27 @@ public class CardBuilder {
         return card;
     }
 
+    private void addConditional(Card card) {
+        Conditional conditional = this.selectConditional(); // Generate an initial conditional
+        String condText = conditional.getText(); // Initial conditions
+        int costToAdd = conditional.getCost(); // Initial conditions
+        boolean validType = (conditional.getType() == card.getType() || conditional.getType() == MinionType.none);
+        if(!validType){ // If we generated a conditional incompatible with the type of the minion
+            card.setType(this.saneType(conditional.getType())); // Change the type of the minion to be valid
+        }
+        card.setConditional(conditional); // Add a conditional effect
+        card.addToText(condText); // Add it to the text
+        card.spendBudget(costToAdd); // Give additional budget points for the effect
+    }
+
+
     private Card makeBattlecryCard() {
         Card card = this.newCard(); // Make a new card
-        if (card.getMana() > 1) { // If the card costs more than one
+        if(card.getMana() > 1) { // If the card costs more than one
             card.addToText("Battlecry: "); // Write the boilerplate
             addConditional(card);
 
-            CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), false); // Generate the card drawing text (50/50 chance of drawing the conditional type)
+            CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), false);
             card.addToText(cardText.getText()); // Add the effect to the text
             card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
         }
@@ -252,11 +284,11 @@ public class CardBuilder {
 
     private Card makeDeathrattleCard() {
         Card card = this.newCard(); // Make a new card
-        if (card.getMana() > 1) { // If the card costs more than one
+        if(card.getMana() > 1) { // If the card costs more than one
             card.spendBudget(-1); // Deathrattles generally seem to be weaker
             card.addToText("Deathrattle: "); // Write the boilerplate
             addConditional(card);
-            CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), true); // Generate the card drawing text (50/50 chance of drawing the conditional type)
+            CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), true);
             card.addToText(cardText.getText()); // Add the effect to the text
             card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
         }
@@ -266,18 +298,6 @@ public class CardBuilder {
         return card;
     }
 
-    private void addConditional(Card card) {
-        Conditional conditional = this.selectConditional(); // Generate an initial conditional
-        String condText = conditional.getText(); // Initial conditions
-        int costToAdd = conditional.getCost(); // Initial conditions
-        boolean validType = (conditional.getType() == card.getType() || conditional.getType() == MinionType.none);
-        if (!validType){ // If we generated a conditional incompatible with the type of the minion
-            card.setType(this.saneType(conditional.getType())); // Change the type of the minion to be valid
-        }
-        card.setConditional(conditional); // Add a conditional effect
-        card.addToText(condText); // Add it to the text
-        card.spendBudget(costToAdd); // Give additional budget points for the effect
-    }
 
     public static void main(String[] args) throws IOException {
         CardBuilder cb = new CardBuilder();
