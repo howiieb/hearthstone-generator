@@ -10,38 +10,38 @@ public class CardBuilder {
 
     private CardBuilder() {
         rng = new Random();
-        conditionals = new Conditional[]{new Conditional("",0,MinionType.none),
-                new Conditional("If you are holding a dragon, ",-2,MinionType.dragon),
-                new Conditional("If you played an elemental last turn, ",-3,MinionType.elemental),
-                new Conditional("If you have another mech, ",-1,MinionType.mech),
-                new Conditional("If you have another beast, ",-2,MinionType.beast),
-                new Conditional("If you have another pirate, ",-1,MinionType.pirate),
-                new Conditional("If you control no other minions, ",-2,MinionType.none),
-                new Conditional("If you control at least two other minions, ",-1,MinionType.none),
-                new Conditional("If you control at least four other minions, ",-2,MinionType.none),
-                new Conditional("If your opponent has at least three minions, ",-2,MinionType.none),
-                new Conditional("If you have ten mana crystals, ",-1,MinionType.none),
-                new Conditional("If you control a secret, ",-1,MinionType.none),
-                new Conditional("If you played a spell this turn, ",-1,MinionType.none), // MAGE
-                new Conditional("If you played a secret this turn, ",-2,MinionType.none),
-                new Conditional("If you have a weapon equipped, ",-1,MinionType.none), // WARRIOR
-                new Conditional("If you have a damaged minion, ",-1,MinionType.none),
-                new Conditional("If you're holding a card from another class, ",-1,MinionType.none), // ROGUE
-                new Conditional("Combo: ",-2,MinionType.none),
-                new Conditional("If you control a Treant, ",-1,MinionType.none), // DRUID
-                new Conditional("If you have unspent mana, ",-1,MinionType.none),
-                new Conditional("If you discard this minion, ",-3,MinionType.none), // WARLOCK
-                new Conditional("If you have a demon, ",-2,MinionType.demon),
-                new Conditional("If your deck has no neutral cards, ",-2,MinionType.none), // PALADIN
-                new Conditional("If you have a Silver Hand Recruit, ",-1,MinionType.none),
-                new Conditional("If you have overloaded mana crystals, ",-2,MinionType.none), // SHAMAN
-                new Conditional("If you cast a spell last turn, ",-2,MinionType.none),
-                new Conditional("If your hand is empty, ",-2,MinionType.none), // HUNTER
-                new Conditional("If you have used your hero power, ",-1,MinionType.none),
-                new Conditional("Outcast: ",-2,MinionType.none), // DEMON HUNTER
-                new Conditional("If you attacked this turn, ",-2,MinionType.none),
-                new Conditional("If you restored health this turn, ",-2,MinionType.none), // PRIEST
-                new Conditional("If you have cast a spell on a friendly minion this turn, ",-2,MinionType.none),
+        conditionals = new Conditional[]{new Conditional("",0,MinionType.none,false),
+                new Conditional("If you are holding a dragon, ",-2,MinionType.dragon,false),
+                new Conditional("If you played an elemental last turn, ",-3,MinionType.elemental,false),
+                new Conditional("If you have another mech, ",-1,MinionType.mech,false),
+                new Conditional("If you have another beast, ",-2,MinionType.beast,false),
+                new Conditional("If you have another pirate, ",-1,MinionType.pirate,false),
+                new Conditional("If you control no other minions, ",-2,MinionType.none,false),
+                new Conditional("If you control at least two other minions, ",-1,MinionType.none,false),
+                new Conditional("If you control at least four other minions, ",-2,MinionType.none,false),
+                new Conditional("If your opponent has at least three minions, ",-2,MinionType.none,false),
+                new Conditional("If you have ten mana crystals, ",-1,MinionType.none,false),
+                new Conditional("If you control a secret, ",-1,MinionType.none,false),
+                new Conditional("If you played a spell this turn, ",-1,MinionType.none,true), // MAGE
+                new Conditional("If you played a secret this turn, ",-2,MinionType.none,true),
+                new Conditional("If you have a weapon equipped, ",-1,MinionType.none,false), // WARRIOR
+                new Conditional("If you have a damaged minion, ",-1,MinionType.none,false),
+                new Conditional("If you're holding a card from another class, ",-1,MinionType.none,false), // ROGUE
+                new Conditional("Combo: ",-2,MinionType.none,true),
+                new Conditional("If you control a Treant, ",-1,MinionType.none,false), // DRUID
+                new Conditional("If you have unspent mana, ",-1,MinionType.none,true),
+                new Conditional("If you discard this minion, ",-3,MinionType.none,true), // WARLOCK
+                new Conditional("If you have a demon, ",-2,MinionType.demon,false),
+                new Conditional("If your deck has no neutral cards, ",-2,MinionType.none,false), // PALADIN
+                new Conditional("If you have a Silver Hand Recruit, ",-1,MinionType.none,false),
+                new Conditional("If you have overloaded mana crystals, ",-2,MinionType.none,true), // SHAMAN
+                new Conditional("If you cast a spell last turn, ",-2,MinionType.none,true),
+                new Conditional("If your hand is empty, ",-2,MinionType.none,false), // HUNTER
+                new Conditional("If you have used your hero power this turn, ",-1,MinionType.none,true),
+                new Conditional("Outcast: ",-2,MinionType.none,true), // DEMON HUNTER
+                new Conditional("If you attacked this turn, ",-2,MinionType.none,true),
+                new Conditional("If you restored health this turn, ",-2,MinionType.none,true), // PRIEST
+                new Conditional("If you have cast a spell on a friendly minion this turn, ",-2,MinionType.none,true),
         };
 
     }
@@ -64,6 +64,7 @@ public class CardBuilder {
     private int[] assignStats(double budget) {
         int[] stats = {0, 0};
         double remainingStats = getVanilla(budget); // The remaining stats left to distribute to attack or health
+        if(budget == 1 && remainingStats > 4) remainingStats = 4; // Nerf 1-drops
         if(budget % 1 != 0) { remainingStats += 1; } // If we have half a stat, give one more stat
         for (; remainingStats > 0; remainingStats--) {
             if(rng.nextBoolean()) { // Roll to determine stat - true gives to attack, false to health
@@ -280,8 +281,11 @@ public class CardBuilder {
         return card;
     }
 
-    private void addConditional(Card card) {
+    private void addConditional(Card card, boolean battlecry) {
         Conditional conditional = this.selectConditional(); // Generate an initial conditional
+        while(!battlecry && conditional.isBattlecryOnly()){
+            conditional = this.selectConditional();
+        }
         String condText = conditional.getText(); // Initial conditions
         int costToAdd = conditional.getCost(); // Initial conditions
         boolean validType = (conditional.getType() == card.getType() || conditional.getType() == MinionType.none);
@@ -298,7 +302,7 @@ public class CardBuilder {
         Card card = this.newCard(); // Make a new card
         this.addKeyword(card);
         card.addToText("Battlecry: "); // Write the boilerplate
-        addConditional(card);
+        addConditional(card, true);
         CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), false);
         card.addToText(cardText.getText()); // Add the effect to the text
         card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
@@ -317,7 +321,7 @@ public class CardBuilder {
     }
 
     private Card addEffectAlwaysRandom(Card card) {
-        addConditional(card);
+        addConditional(card, false);
         CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), true);
         card.addToText(cardText.getText()); // Add the effect to the text
         card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget

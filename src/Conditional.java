@@ -4,16 +4,18 @@ public class Conditional {
     private String text;
     private Integer cost;
     private MinionType type;
+    private boolean battlecryOnly;
 
-    public Conditional(String text, Integer cost, MinionType type) {
+    public Conditional(String text, Integer cost, MinionType type, boolean battlecry) {
         this.text = text;
         this.cost = cost;
         this.type = type;
-
+        this.battlecryOnly = battlecry;
 
     }
 
     public String getText() { return text; }
     public Integer getCost() { return cost; }
     public MinionType getType() { return type; }
+    public boolean isBattlecryOnly() { return battlecryOnly; }
 }
