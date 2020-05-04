@@ -292,8 +292,7 @@ public class CardBuilder {
         if(!validType){ // If we generated a conditional incompatible with the type of the minion
             card.setType(this.saneType(conditional.getType())); // Change the type of the minion to be valid
         }
-        card.setConditional(conditional); // Add a conditional effect
-        card.addToText(condText); // Add it to the text
+        card.addToText(condText); // Add a conditional to the text
         card.spendBudget(costToAdd); // Give additional budget points for the effect
     }
 
