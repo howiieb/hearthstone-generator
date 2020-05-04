@@ -317,11 +317,11 @@ public class CardBuilder {
         card.spendBudget(-1); // Deathrattles generally seem to be weaker
         this.addKeyword(card);
         card.addToText("Deathrattle: "); // Write the boilerplate
+        addConditional(card, false);
         return addEffectAlwaysRandom(card);
     }
 
     private Card addEffectAlwaysRandom(Card card) {
-        addConditional(card, false);
         CardText cardText = this.writeRandomEffect(card.getBudget(), card.getType(), true);
         card.addToText(cardText.getText()); // Add the effect to the text
         card.spendBudget(cardText.getCost()); // Spend how much that cost on the card's budget
