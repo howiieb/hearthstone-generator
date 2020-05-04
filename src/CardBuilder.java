@@ -50,7 +50,6 @@ public class CardBuilder {
     private Card newCard() {
         Card newCard = new Card();
         newCard.setMana(rng.nextInt(10) + 1);
-        if(newCard.getMana() == 1) newCard.spendBudget(-1); // Give an extra budget to 1-drops - power creep!
         newCard.setType(this.randomType());
         return newCard;
     }
@@ -198,7 +197,7 @@ public class CardBuilder {
         double effectCost = 0;
         String effectText = "";
         while (effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
-            int health = rng.nextInt(8) + 1;
+            int health = rng.nextInt(8) + 2;
             effectText = "restore ".concat(Integer.toString(health)).concat(" health");
             if(rng.nextBoolean() || alwaysRandom) { // Roll to decide if this is targetable
                 switch (rng.nextInt(2)) { // 0 = your hero, 1 = all allies
@@ -220,7 +219,7 @@ public class CardBuilder {
     }
 
     private CardText writeDiscover(MinionType type){
-        if(type != MinionType.none) return new CardText("discover a ".concat(type.toString()).concat("."), 0.5);
+        if(type != MinionType.none) return new CardText("discover a ".concat(type.toString()).concat("."), 1);
         else {
             switch(rng.nextInt(3)) {
                 case 0:
