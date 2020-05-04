@@ -144,7 +144,7 @@ public class CardBuilder {
         double effectCost = 0;
         String effectText = "";
         while(effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
-            int damage = rng.nextInt(8) + 1;
+            int damage = rng.nextInt(8) + 2;
             effectText = "deal ".concat(Integer.toString(damage)).concat(" damage");
             if(rng.nextBoolean() || alwaysRandom) { // Roll to decide if we attack random targets or a fixed target
                 switch (rng.nextInt(3)){ // 0 = enemy, 1 = enemy minion, 2 = enemy hero
