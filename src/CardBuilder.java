@@ -105,12 +105,12 @@ public class CardBuilder {
     // EFFECT WRITERS
 
     /* Returns the data necessary to add "draw a card" to a card, given a budget to work with and the type of the minion.
-    Current cost of drawing one card is 1.5 mana.
+    Min cost cost of drawing one card is 1.5 mana.
     Returns an object with two values - the description, as a string, and the cost of this effect. */
     private CardText writeCardDraw(double budget, MinionType type) {
         double effectCost = 0;
         String effectText = "";
-        while (effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
+        while (effectCost > budget - 0.5 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
             int drawCards = rng.nextInt(2) + 1; // Drawing no more than two cards right now
 
             // Pick a minion type to draw (50/50 split between neutral and the minion type specifically)
@@ -144,7 +144,7 @@ public class CardBuilder {
     private CardText writeDealDamage(double budget, boolean alwaysRandom){
         double effectCost = 0;
         String effectText = "";
-        while(effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
+        while(effectCost > budget - 0.5 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
             int damage = rng.nextInt(8) + 2;
             effectText = "deal ".concat(Integer.toString(damage)).concat(" damage");
             if(rng.nextBoolean() || alwaysRandom) { // Roll to decide if we attack random targets or a fixed target
@@ -179,7 +179,7 @@ public class CardBuilder {
     private CardText writeDealAOE(double budget){
         double effectCost = 0;
         String effectText = "";
-        while(effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
+        while(effectCost > budget - 0.5 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
             int damage = rng.nextInt(8) + 1;
             effectText = "deal ".concat(Integer.toString(damage)).concat(" damage");
             if(rng.nextBoolean()) {
@@ -197,7 +197,7 @@ public class CardBuilder {
     private CardText writeRestoreHealth(double budget, boolean alwaysRandom) {
         double effectCost = 0;
         String effectText = "";
-        while (effectCost > budget - 1 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
+        while (effectCost > budget - 0.5 || effectCost == 0) { // Making sure we do this within the cost *and* leave at least one mana left
             int health = rng.nextInt(8) + 2;
             effectText = "restore ".concat(Integer.toString(health)).concat(" health");
             if(rng.nextBoolean() || alwaysRandom) { // Roll to decide if this is targetable
@@ -242,17 +242,17 @@ public class CardBuilder {
         if(!alwaysRandom) bound += 1; // Only do discover for battlecry cards
         switch(rng.nextInt(bound)){
             case 0:
-                return this.writeCardDraw(budget, type);
+                if(budget > 1.5) return this.writeCardDraw(budget, type);
             case 1:
-                return this.writeDealDamage(budget, alwaysRandom);
+                if (budget > 2) return this.writeDealDamage(budget, alwaysRandom);
             case 2:
-                return this.writeRestoreHealth(budget, alwaysRandom);
+                if (budget > 0.5) return this.writeRestoreHealth(budget, alwaysRandom);
             case 3:
-                return this.writeDealAOE(budget);
+                if (budget > 2) return this.writeDealAOE(budget);
             case 4:
-                return this.writeDiscover(type);
+                if (budget > 1) return this.writeDiscover(type);
             default:
-                throw new ArithmeticException();
+                return(new CardText("",0));
         }
     }
 
