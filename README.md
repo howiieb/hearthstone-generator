@@ -6,4 +6,4 @@ Run CardBuilder.java. The command line interface will guide you through the rest
 I may do a web interface for this at one point, but it'll be after I'm done with the university project.
 
 # How it works
-This will be published soon as part of the report I have to write.
+The report written for the university project is available [here](https://docs.google.com/document/d/1DtcC83qUC942zmqDzuqnyNP3iK05cOTc_d87OjKi9PY/edit?usp=sharing)
