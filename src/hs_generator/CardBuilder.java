@@ -1,3 +1,5 @@
+package hs_generator;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -5,10 +7,10 @@ import java.util.Random;
 
 public class CardBuilder {
 
-    private Conditional[] conditionals;
-    private Random rng;
+    private final Conditional[] conditionals;
+    private final Random rng;
 
-    private CardBuilder() {
+    public CardBuilder() {
         rng = new Random();
         conditionals = new Conditional[]{new Conditional("",0,MinionType.none,false),
                 new Conditional("If you are holding a dragon, ",-2,MinionType.dragon,false),
@@ -95,7 +97,7 @@ public class CardBuilder {
         return conditionals[rng.nextInt(conditionals.length)];
     }
 
-    // Parse a Card object in such a way that it can be read in the console
+    // Parse a hs_generator.Card object in such a way that it can be read in the console
     private static String parseToPrint(Card card) {
         return ("Mana: " + card.getMana() + " Attack: " + card.getAttack() + " Health: " + card.getHealth() +
                 " Type: " + card.getType().toString().substring(0, 1).toUpperCase() +

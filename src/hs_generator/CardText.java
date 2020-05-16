@@ -1,3 +1,5 @@
+package hs_generator;
+
 public class CardText {
     // This object stores both the text of an effect and its cost. It is used instead of storing these as an array.
     private String text;

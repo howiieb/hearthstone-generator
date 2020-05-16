@@ -1,3 +1,5 @@
+package hs_generator;
+
 public class Card {
     private Integer mana;
     private double budget;

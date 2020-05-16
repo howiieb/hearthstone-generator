@@ -1,3 +1,5 @@
+package hs_generator;
+
 public enum MinionType {
     none,
     beast,

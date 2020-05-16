@@ -1,3 +1,5 @@
+package hs_generator;
+
 public class Conditional {
     /* This object stores text of a conditional, its cost (usually negative), and the minion types it specifically
     concerns (if any). */
