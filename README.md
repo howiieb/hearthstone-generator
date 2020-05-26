@@ -2,7 +2,9 @@
 This is a Java project that generates random Hearthstone cards. This was made for a university project, but is kinda fun, so is being published here too.
 
 # How to run
-Run hs_generator.CardBuilder.java. The command line interface will guide you through the rest. This project should have no prerequisites.
+This now has a web app! Check out http://howiieb.com/hearthstone-generator/.
+
+Alternatively, if you want to run these files locally, run hs_generator.CardBuilder.java. The command line interface will guide you through the rest. This project should have no prerequisites.
 I may do a web interface for this at one point, but it'll be after I'm done with the university project.
 
 # How it works
