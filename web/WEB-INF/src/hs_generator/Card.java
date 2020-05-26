@@ -19,12 +19,13 @@ public class Card {
     }
 
     // Accessor methods
-    int getMana(){ return mana; }
+    public int getMana(){ return mana; }
     double getBudget() { return budget; }
-    int getAttack() { return attack; }
-    int getHealth() { return health; }
+    public int getAttack() { return attack; }
+    public int getHealth() { return health; }
     public MinionType getType() { return type; }
-    String getText() { return text; }
+    public String getTypeStr() { return type.toString().substring(0, 1).toUpperCase() + type.toString().substring(1); }
+    public String getText() { return text; }
 
 
     // Setter methods
