@@ -1,5 +1,3 @@
-package hs_generator;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -49,7 +47,7 @@ public class CardBuilder {
     }
 
     // Generates a new blank card with a randomly assigned mana cost
-    private Card newCard() {
+    public Card newCard() {
         Card newCard = new Card();
         newCard.setMana(rng.nextInt(10) + 1);
         newCard.setType(this.randomType());
@@ -98,7 +96,7 @@ public class CardBuilder {
     }
 
     // Parse a hs_generator.Card object in such a way that it can be read in the console
-    private static String parseToPrint(Card card) {
+    public String toString(Card card) {
         return ("Mana: " + card.getMana() + " Attack: " + card.getAttack() + " Health: " + card.getHealth() +
                 " Type: " + card.getType().toString().substring(0, 1).toUpperCase() +
                 card.getType().toString().substring(1).toLowerCase() + " Description: " + card.getText());
@@ -299,7 +297,7 @@ public class CardBuilder {
     }
 
 
-    private Card makeBattlecryCard() {
+    public Card makeBattlecryCard() {
         Card card = this.newCard(); // Make a new card
         this.addKeyword(card);
         card.addToText("Battlecry: "); // Write the boilerplate
@@ -313,7 +311,7 @@ public class CardBuilder {
         return card;
     }
 
-    private Card makeDeathrattleCard() {
+    public Card makeDeathrattleCard() {
         Card card = this.newCard(); // Make a new card
         card.spendBudget(-1); // Deathrattles generally seem to be weaker
         this.addKeyword(card);
@@ -354,25 +352,25 @@ public class CardBuilder {
             switch (cardType) {
                 case "1":
                     for (int i = 0; i < Integer.parseInt(cardCount); i++) {
-                        System.out.println(parseToPrint(cb.makeVanillaCard()));
+                        System.out.println(cb.toString(cb.makeVanillaCard()));
                     }
                     accepted = true;
                     break;
                 case "2":
                     for (int i = 0; i < Integer.parseInt(cardCount); i++) {
-                        System.out.println(parseToPrint(cb.makeBattlecryCard()));
+                        System.out.println(cb.toString(cb.makeBattlecryCard()));
                     }
                     accepted = true;
                     break;
                 case "3":
                     for (int i = 0; i < Integer.parseInt(cardCount); i++) {
-                        System.out.println(parseToPrint(cb.makeDeathrattleCard()));
+                        System.out.println(cb.toString(cb.makeDeathrattleCard()));
                     }
                     accepted = true;
                     break;
                 case "4":
                     for (int i = 0; i < Integer.parseInt(cardCount); i++) {
-                        System.out.println(parseToPrint(cb.makeEndTurnCard()));
+                        System.out.println(cb.toString(cb.makeEndTurnCard()));
                     }
                     accepted = true;
                     break;
